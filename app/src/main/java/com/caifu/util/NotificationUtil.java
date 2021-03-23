@@ -23,7 +23,7 @@ public class NotificationUtil {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(service, getChannelId(notificationManager, "record"));
         Intent nfIntent = new Intent(service, MainActivity.class); //点击后跳转的界面，可以设置跳转数据
         builder.setContentIntent(PendingIntent.getActivity(service, 0, nfIntent, 0)) // 设置PendingIntent
-                .setSmallIcon(R.mipmap.ic_launcher) // 设置状态栏内的小图标
+                .setSmallIcon(R.mipmap.logo) // 设置状态栏内的小图标
                 .setContentText("recorder running......") // 设置上下文内容
                 .setWhen(System.currentTimeMillis()); // 设置该通知发生的时间
         service.startForeground(noticeId, builder.build());
