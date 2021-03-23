@@ -27,7 +27,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class ScreenService extends Service {
-    private static final String rootDir = Environment.getExternalStorageDirectory() + File.separator + "ScreenRecord" + "/";
+    private static final String rootDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
+            + File.separator + "ScreenRecord" + "/";
     private MediaRecorder mediaRecorder;
     private VirtualDisplay virtualDisplay;
     private boolean running;
@@ -160,12 +161,12 @@ public class ScreenService extends Service {
     private void initRecorder() {
         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
-        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         filePath = getSavePath() + System.currentTimeMillis() + ".mp4";
         mediaRecorder.setOutputFile(filePath);
         mediaRecorder.setVideoSize(width, height);
         mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
-        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         mediaRecorder.setVideoEncodingBitRate(5 * 1024 * 1024);
         mediaRecorder.setVideoFrameRate(30);
         try {
