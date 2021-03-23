@@ -1,0 +1,2 @@
+rootProject.name = "Recoreder"
+include ':app', ':permissionlib', ':common'
