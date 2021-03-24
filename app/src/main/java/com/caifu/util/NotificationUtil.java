@@ -17,15 +17,16 @@ import com.caifu.R;
 public class NotificationUtil {
 
     private static final int noticeId = 110;
+    private static final String channelId = "record";
 
     public static void startNotification(Service service) {
         NotificationManager notificationManager = (NotificationManager) service.getSystemService(Context.NOTIFICATION_SERVICE);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(service, getChannelId(notificationManager, "record"));
-        Intent nfIntent = new Intent(service, MainActivity.class); //点击后跳转的界面，可以设置跳转数据
-        builder.setContentIntent(PendingIntent.getActivity(service, 0, nfIntent, 0)) // 设置PendingIntent
-                .setSmallIcon(R.mipmap.logo) // 设置状态栏内的小图标
-                .setContentText("recorder running......") // 设置上下文内容
-                .setWhen(System.currentTimeMillis()); // 设置该通知发生的时间
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(service, getChannelId(notificationManager, channelId));
+        Intent targetIntent = new Intent(service, MainActivity.class);
+        builder.setContentIntent(PendingIntent.getActivity(service, noticeId, targetIntent, PendingIntent.FLAG_UPDATE_CURRENT))
+                .setSmallIcon(R.mipmap.logo)
+                .setContentText(service.getString(R.string.notification_hint))
+                .setWhen(System.currentTimeMillis());
         service.startForeground(noticeId, builder.build());
     }
 
