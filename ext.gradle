@@ -1,0 +1,21 @@
+ext {
+    applicationId = "com.caifu"
+    compileSdkVersion = 30
+    minSdkVersion = 21
+    targetSdkVersion = 30
+    buildToolsVersion = "30.0.3"
+    versionCode = 1
+    versionName = "1.0"
+
+    processor = [
+            autoService: "com.google.auto.service:auto-service:1.0-rc7"
+    ]
+
+    implementation = [
+            autoService     : "com.google.auto.service:auto-service:1.0-rc7",
+            appcompat       : "androidx.appcompat:appcompat:1.1.0",
+            constraintlayout: "androidx.constraintlayout:constraintlayout:2.0.4",
+            material        : "com.google.android.material:material:1.3.0",
+    ]
+
+}
