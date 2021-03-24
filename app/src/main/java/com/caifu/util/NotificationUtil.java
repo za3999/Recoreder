@@ -32,7 +32,7 @@ public class NotificationUtil {
     public static String getChannelId(NotificationManager notificationManager, String channelId) {
         NotificationChannel channel = notificationManager.getNotificationChannel(channelId);
         if (channel == null) {
-            channel = new NotificationChannel(channelId, channelId, NotificationManager.IMPORTANCE_LOW);
+            channel = new NotificationChannel(channelId, channelId, NotificationManager.IMPORTANCE_NONE);
             channel.setShowBadge(false);
             channel.enableLights(false);
             channel.setLightColor(Color.GREEN);
