@@ -119,6 +119,7 @@ public class ScreenService extends Service {
         running = false;
         recordHandler.post(() -> {
             mediaRecorder.pause();
+            new MediaScanner(ScreenService.this).setFilePaths(filePath).startScan();
         });
         return true;
     }
@@ -128,7 +129,6 @@ public class ScreenService extends Service {
             mediaRecorder.stop();
             mediaRecorder.reset();
             mediaRecorder.release();
-            new MediaScanner(ScreenService.this).setFilePaths(filePath).startScan();
         });
     }
 
