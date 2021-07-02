@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -19,7 +20,7 @@ public class AlbumUtil {
 
     public static void insertFileToMediaStore(Context context, String filePath) {
         Uri uri = context.getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, getCommonContentValues(filePath));
-//        insertFileContent(context, filePath, uri);
+        Log.d("test", "insertFileToMediaStore file path:" + filePath + ", uri:" + uri);
     }
 
     private static void insertFileContent(Context context, String filePath, Uri uri) {
@@ -54,22 +55,25 @@ public class AlbumUtil {
         values.put(MediaStore.Video.VideoColumns.DATE_TAKEN, time);
         values.put(MediaStore.Video.Media.DATA, filePath);
         values.put(MediaStore.Images.Media.MIME_TYPE, getVideoMimeType(filePath));
-
         MediaMetadataRetriever rmr = new MediaMetadataRetriever();
-        rmr.setDataSource(filePath);
-        int outWidth = Integer.parseInt(rmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
-        int outHeight = Integer.parseInt(rmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
-            if (outWidth > 0) values.put(MediaStore.Images.ImageColumns.WIDTH, outWidth);
-            if (outHeight > 0) values.put(MediaStore.Images.ImageColumns.HEIGHT, outHeight);
+        try {
+            FileInputStream inputStream = new FileInputStream(new File(filePath));
+            rmr.setDataSource(inputStream.getFD());
+            int outWidth = Integer.parseInt(rmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH));
+            int outHeight = Integer.parseInt(rmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT));
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
+                if (outWidth > 0) values.put(MediaStore.Images.ImageColumns.WIDTH, outWidth);
+                if (outHeight > 0) values.put(MediaStore.Images.ImageColumns.HEIGHT, outHeight);
+            }
+            long duration = 0;
+            String durationStr = rmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+            if (!TextUtils.isEmpty(durationStr)) {
+                duration = Long.parseLong(durationStr);
+            }
+            values.put(MediaStore.Video.VideoColumns.DURATION, duration);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        long duration = 0;
-        String durationStr = rmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-        if (!TextUtils.isEmpty(durationStr)) {
-            duration = Long.parseLong(durationStr);
-        }
-        values.put(MediaStore.Video.VideoColumns.DURATION, duration);
-
         File saveFile = new File(filePath);
         values.put(MediaStore.MediaColumns.TITLE, saveFile.getName());
         values.put(MediaStore.MediaColumns.DISPLAY_NAME, saveFile.getName());

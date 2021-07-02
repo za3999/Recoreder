@@ -39,7 +39,7 @@ public class FloatView {
             mRecord.setText(mScreenService.isRunning() ? R.string.stop : R.string.record);
         });
         mClose.setOnClickListener(v -> {
-            mScreenService.stopRecord();
+            mScreenService.closeRecord();
             hide();
             activity.finish();
         });

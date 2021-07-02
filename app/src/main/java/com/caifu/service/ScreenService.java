@@ -38,12 +38,12 @@ public class ScreenService extends Service {
     private ImageReader mImageReader;
     private MediaProjection mediaProjection;
     private String filePath;
-    private static HandlerThread bgHandlerThread = new HandlerThread("screen_thread");
-    private static Handler bgHandler;
+    private static HandlerThread recordHandlerThread = new HandlerThread("screen_thread");
+    private static Handler recordHandler;
 
     static {
-        bgHandlerThread.start();
-        bgHandler = new Handler(bgHandlerThread.getLooper());
+        recordHandlerThread.start();
+        recordHandler = new Handler(recordHandlerThread.getLooper());
     }
 
     @Nullable
@@ -57,7 +57,6 @@ public class ScreenService extends Service {
     public void onCreate() {
         super.onCreate();
         running = false;
-        mediaRecorder = new MediaRecorder();
     }
 
     @Override
@@ -100,13 +99,13 @@ public class ScreenService extends Service {
         if (mediaProjection == null || running) {
             return false;
         }
-        initRecorder();
-        createVirtualDisplay();
-        mediaRecorder.start();
         running = true;
+        recordHandler.post(() -> {
+            initRecorder();
+            mediaRecorder.resume();
+        });
         return true;
     }
-
 
     /**
      * 结束录屏
@@ -118,10 +117,19 @@ public class ScreenService extends Service {
             return false;
         }
         running = false;
-        mediaRecorder.stop();
-        mediaRecorder.reset();
-        AlbumUtil.insertFileToMediaStore(this, filePath);
+        recordHandler.post(() -> {
+            mediaRecorder.pause();
+        });
         return true;
+    }
+
+    public void closeRecord() {
+        recordHandler.post(() -> {
+            mediaRecorder.stop();
+            mediaRecorder.reset();
+            mediaRecorder.release();
+            AlbumUtil.insertFileToMediaStore(ScreenService.this, filePath);
+        });
     }
 
     /**
@@ -159,20 +167,25 @@ public class ScreenService extends Service {
      * 初始化保存屏幕录像的参数
      */
     private void initRecorder() {
-        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
-        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        filePath = getSavePath() + System.currentTimeMillis() + ".mp4";
-        mediaRecorder.setOutputFile(filePath);
-        mediaRecorder.setVideoSize(width, height);
-        mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
-        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-        mediaRecorder.setVideoEncodingBitRate(5 * 1024 * 1024);
-        mediaRecorder.setVideoFrameRate(30);
-        try {
-            mediaRecorder.prepare();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (mediaRecorder == null) {
+            mediaRecorder = new MediaRecorder();
+            mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+            mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
+            mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+            filePath = getSavePath() + System.currentTimeMillis() + ".mp4";
+            mediaRecorder.setOutputFile(filePath);
+            mediaRecorder.setVideoSize(width, height);
+            mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
+            mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+            mediaRecorder.setVideoEncodingBitRate(5 * 1024 * 1024);
+            mediaRecorder.setVideoFrameRate(30);
+            try {
+                mediaRecorder.prepare();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            createVirtualDisplay();
+            mediaRecorder.start();
         }
     }
 
