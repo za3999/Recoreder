@@ -19,7 +19,7 @@ import android.os.IBinder;
 
 import androidx.annotation.Nullable;
 
-import com.caifu.util.AlbumUtil;
+import com.caifu.util.MediaScanner;
 import com.caifu.util.NotificationUtil;
 
 import java.io.File;
@@ -128,7 +128,7 @@ public class ScreenService extends Service {
             mediaRecorder.stop();
             mediaRecorder.reset();
             mediaRecorder.release();
-            AlbumUtil.insertFileToMediaStore(ScreenService.this, filePath);
+            new MediaScanner(ScreenService.this).setFilePaths(filePath).startScan();
         });
     }
 
